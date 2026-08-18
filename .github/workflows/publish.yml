@@ -1,0 +1,111 @@
+name: Publish
+on:
+  workflow_dispatch:
+    inputs:
+      next-type:
+        description: 'The bump type of the version'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - premajor
+          - preminor
+          - prepatch
+          - prerelease
+      preid:
+        description: 'The prerelease identifier'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_BRANCH: releases
+
+jobs:
+  release:
+    name: Do Release
+    runs-on: ubuntu-latest
+    steps:
+      # checkout
+      - uses: actions/checkout@v7
+      - name: Fetch branches and tags
+        run: git fetch origin --tags
+
+      # environment setup and checkout
+      - uses: snow-actions/git-config-user@v1.0.0
+      - run: corepack enable && corepack enable npm
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # bump version
+      - name: bump version name
+        env:
+          NEXT_TYPE: ${{ github.event.inputs.next-type }}
+          PREID: ${{ github.event.inputs.preid }}
+        run: |
+          npm version --git-tag-version=false "${NEXT_TYPE}" --preid="${PREID}"
+          VERSION="$(jq -r '.version' < package.json)"
+
+          if git tag | grep "^v$VERSION$" >/dev/null; then
+            echo "version name duplicated" >&2
+            exit 255
+          fi
+      - name: commit the version bump
+        run: |
+          VERSION="$(jq -r '.version' < package.json)"
+          git add package.json
+          git commit -m "Release v$VERSION"
+          git tag "source-v${VERSION}"
+
+      # build
+      - run: npm ci
+      - run: npm run all
+
+      - name: Commit
+        run: |
+          VERSION="$(jq -r '.version' < package.json)"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+
+          if git rev-parse --verify "refs/remotes/origin/$RELEASE_BRANCH" -- 2>/dev/null; then
+            PREV_RELEASE="$(git rev-parse --verify "refs/remotes/origin/$RELEASE_BRANCH")"
+          else
+            PREV_RELEASE="$(git rev-parse --verify HEAD)"
+          fi
+
+          # edit gitignore
+          sed -n '/#### PUBLISH DELETE MARKER ####/q;p' -i .gitignore
+
+          # add modified files
+          git add .gitignore dist
+
+          # commit
+          NEW_RELEASE_TREE="$(git write-tree)"
+          NEW_RELEASE_COMMIT="$(git commit-tree -p "${PREV_RELEASE}" -p "${SOURCE_COMMIT}" -m "v${VERSION} at ${SOURCE_COMMIT}" "$NEW_RELEASE_TREE")"
+          git update-ref "refs/heads/$RELEASE_BRANCH" "${NEW_RELEASE_COMMIT}"
+
+          git tag -f "v$VERSION" "$NEW_RELEASE_COMMIT"
+          if ! [[ "$VERSION" == *-* ]]; then
+            # no '-' in the version name; stable release so create major and minor tags
+            MAJOR="$(echo "$VERSION" | cut -d. -f1)"
+            MINOR="$(echo "$VERSION" | cut -d. -f2)"
+            # tag vX.Y and vX if major or minor is not 0
+            if [[ "$MAJOR" != "0" ]]; then
+              git tag -f "v$MAJOR" "$NEW_RELEASE_COMMIT"
+              git tag -f "v$MAJOR.$MINOR" "$NEW_RELEASE_COMMIT"
+            elif [[ "$MINOR" != "0" ]]; then
+              git tag -f "v$MAJOR.$MINOR" "$NEW_RELEASE_COMMIT"
+            fi
+          fi
+
+      - name: Tag and Push
+        run: |
+          git push origin HEAD "$RELEASE_BRANCH"
+          git push --tags -f

@@ -1,0 +1,42 @@
+{
+	"name": "typescript-action",
+	"version": "0.0.0",
+	"private": true,
+	"description": "TypeScript template action",
+	"main": "lib/main.js",
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"format": "npx biome format --write",
+		"format-check": "npx biome format",
+		"lint": "npx biome check",
+		"package": "ncc build --source-map --license licenses.txt",
+		"test": "vitest run",
+		"all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/anatawa12/typescript-action.git"
+	},
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"@actions/core": "^3.0.1",
+		"@actions/exec": "^3.0.0",
+		"@actions/github": "^9.1.1",
+		"fs-extra": "^11.4.0",
+		"parse-duration": "^2.1.8",
+		"tmp-promise": "^3.0.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.8",
+		"@types/fs-extra": "^11.0.1",
+		"@types/node": "^24",
+		"@types/tmp": "^0.2.3",
+		"@vercel/ncc": "^0.45.0",
+		"typescript": "~7.0.2",
+		"vite": "^8.2.1",
+		"vitest": "^4.1.10"
+	},
+	"packageManager": "npm@10.8.2+sha256.c8c61ba0fa0ab3b5120efd5ba97fdaf0e0b495eef647a97c4413919eda0a878b"
+}

@@ -1,0 +1,13 @@
+name: 'typescript action template for anatawa12'
+description: 'An template action'
+author: 'anatawa12'
+
+inputs: {}
+  # define the inputs of your action here
+
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
+
+outputs: {}
+  # define the outputs of your action here

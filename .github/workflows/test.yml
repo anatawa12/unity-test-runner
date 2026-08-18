@@ -1,0 +1,54 @@
+name: 'build-test'
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches-ignore:
+      - releases
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: corepack enable && corepack enable npm
+      - run: npm ci
+      - run: npm run all
+      - uses: actions/upload-artifact@v7
+        with: 
+          name: built
+          if-no-files-found: error
+          path: |
+            dist
+            action.yml
+
+  test: # make sure the action works on a clean machine without building
+    needs: [build]
+    strategy:
+      matrix: 
+        on:
+          - ubuntu-latest
+    runs-on: ${{ matrix.on }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: built
+
+      - uses: ./
+        with: {}
+
+  conclude:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - build
+      - test
+    steps:
+      - name: Conclude Tests
+        env: { NEEDS: "${{ toJSON(needs) }}" }
+        run: |
+          echo "$NEEDS" | jq -c '. | to_entries[] | [.key, .value.result]'
+          echo "$NEEDS" | jq -e '. | all(.result == "success")' > /dev/null
