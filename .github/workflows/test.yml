@@ -53,6 +53,7 @@ jobs:
               "com.unity.testtools.codecoverage": "1.2.7"
           }
           EOF
+          echo "public class DummyTest { [NUnit.Framework.Test] public void DummyTestMethod() { } }" > Assets/Test.cs
 
       - uses: ./action
         with:
