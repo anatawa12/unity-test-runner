@@ -1,13 +1,55 @@
-name: 'typescript action template for anatawa12'
-description: 'An template action'
+name: 'Unity Test Runner'
+description: 'A github actions to run unity tests'
 author: 'anatawa12'
 
-inputs: {}
-  # define the inputs of your action here
+inputs:
+  unityVersion:
+    required: false
+    default: 'auto'
+    description: 'Version of unity to use for testing the project. Use "auto" to get from your ProjectSettings/ProjectVersion.txt.'
+  licenseXml:
+    required: true
+    default: ''
+    description:
+      'The contents of the UnityEntitlementLicense.xml'
+  customImage:
+    required: false
+    default: ''
+    description: 'Specific docker image that should be used for testing the project.'
+  projectPath:
+    required: false
+    description: 'Path to the Unity project or package to be tested.'
+  customParameters:
+    required: false
+    description: 'Extra parameters to configure the Unity editor run.'
+  testMode:
+    required: false
+    default: 'all'
+    description: 'The type of tests to be run by the test runner.'
+  coverageOptions:
+    required: false
+    default: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;dontClear'
+    description: 'Optional coverage parameters for the -coverageOptions argument. To get coverage from your package, pass assemblies from the package you want covered to the assemblyFilters option.'
+  artifactsPath:
+    required: false
+    default: 'artifacts'
+    description: 'Path where test artifacts should be stored.'
+  dockerCpuLimit:
+    required: false
+    default: ''
+    description: 'Number of CPU cores to assign the docker container. Defaults to all available cores on all platforms.'
+  dockerMemoryLimit:
+    required: false
+    default: ''
+    description:
+      'Amount of memory to assign the docker container. Defaults to 90% of total system memory rounded down to the nearest megabyte.'
+
+outputs:
+  artifactsPath:
+    description: 'Path where the artifacts are stored.'
+  coveragePath:
+    description: 'Path where the code coverage results are stored.'
 
 runs:
   using: 'node24'
   main: 'dist/index.js'
-
-outputs: {}
-  # define the outputs of your action here
