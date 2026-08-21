@@ -31,14 +31,36 @@ jobs:
       matrix: 
         on:
           - ubuntu-latest
+        unity:
+          - 2022.3.22f1
+          - 6000.0.59f2
     runs-on: ${{ matrix.on }}
     steps:
       - uses: actions/download-artifact@v8
         with:
           name: built
+          path: action
 
-      - uses: ./
-        with: {}
+      - name: Prepare project
+        env:
+          UNITY_VERSION: ${{ matrix.unity }}
+        run: |-
+          mkdir -p Assets ProjectSettings Packages
+          echo "m_EditorVersion: $UNITY_VERSION" > ProjectSettings/ProjectVersion.txt
+          cat <<EOF > Packages/manifest.json
+          {
+              "com.unity.test-framework": "1.1.33",
+              "com.unity.testtools.codecoverage": "1.2.7"
+          }
+          EOF
+
+      - uses: ./action
+        with:
+          licenseXml: ${{ secrets.UNITY_LICENSE_XML }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: artifact-${{ matrix.unity }}
+          path: artifacts
 
   conclude:
     runs-on: ubuntu-latest
