@@ -23,6 +23,7 @@ jobs:
           if-no-files-found: error
           path: |
             dist
+            scripts
             action.yml
 
   test: # make sure the action works on a clean machine without building
