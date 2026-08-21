@@ -1,5 +1,6 @@
+import os from "node:os";
+import path from "node:path";
 import * as core from "@actions/core";
-import os from "os";
 
 export interface Inputs {
 	unityVersion: string | "auto";
@@ -18,7 +19,7 @@ export function loadInputs(): Inputs {
 	const unityVersion = core.getInput("unityVersion");
 	const licenseXml = core.getInput("licenseXml");
 	const customImage = core.getInput("customImage");
-	const projectPath = core.getInput("projectPath");
+	const projectPath = path.resolve(core.getInput("projectPath"));
 	const customParameters = core.getInput("customParameters");
 	const testModeInput = core.getInput("testMode");
 	const testMode =
@@ -29,7 +30,7 @@ export function loadInputs(): Inputs {
 		throw new Error("Input testMode contains invalid value");
 	}
 	const coverageOptions = core.getInput("coverageOptions");
-	const artifactsPath = core.getInput("artifactsPath");
+	const artifactsPath = path.resolve(core.getInput("artifactsPath"));
 	const dockerCpuLimit =
 		core.getInput("dockerCpuLimit") || os.cpus().length.toString();
 	const dockerMemoryLimit =
