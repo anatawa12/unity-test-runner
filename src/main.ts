@@ -76,7 +76,7 @@ async function run(): Promise<void> {
 				"container",
 				"exec",
 				"--user=0:0",
-				unityCIImageTag,
+				unityCiContainer,
 				"sh",
 				"-c",
 				"apt-get update && apt-get install socat -y --no-install-recommends",
