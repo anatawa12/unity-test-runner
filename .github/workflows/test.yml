@@ -59,7 +59,6 @@ jobs:
 
       - uses: ./action
         with:
-          testMode: editmode
           licenseXml: ${{ secrets.UNITY_LICENSE_XML }}
       - uses: actions/upload-artifact@v7
         with:
