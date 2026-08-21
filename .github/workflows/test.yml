@@ -55,7 +55,7 @@ jobs:
             }
           }
           EOF
-          echo "public class DummyTest { [NUnit.Framework.Test] public void DummyTestMethod() { } }" > Assets/Test.cs
+          echo "public class DummyTest { [NUnit.Framework.Test] public void DummyTestMethod() { } }" > Assets/Editor/Test.cs
 
       - uses: ./action
         with:
