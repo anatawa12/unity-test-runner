@@ -29,7 +29,7 @@ if ! keyctl show @s; then
 fi
 
 # some oci container system does not create keyring so we need to renew session before run
-keyctl new_session
+keyctl new_session || true
 
 cat /proc/sys/kernel/random/uuid | tr -d '-' > /etc/machine-id
 
