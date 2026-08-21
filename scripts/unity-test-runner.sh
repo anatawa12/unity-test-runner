@@ -22,7 +22,15 @@ prepare_test_env() {
   echo "#   Current Environment   #"
   echo "###########################"
   echo ""
+  env | sed 's/=.*//'
+  echo ""
   env
+  echo ""
+  echo "###########################"
+  echo "#    Project Directory    #"
+  echo "###########################"
+  echo ""
+  ls "$PROJECT_PATH"
   echo ""
 }
 
