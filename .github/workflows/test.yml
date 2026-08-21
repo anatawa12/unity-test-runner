@@ -17,14 +17,12 @@ jobs:
       - run: corepack enable && corepack enable npm
       - run: npm ci
       - run: npm run all
+      - run: tar -czf action.tar.gz dist scripts action.yml
       - uses: actions/upload-artifact@v7
         with: 
-          name: built
           if-no-files-found: error
-          path: |
-            dist
-            scripts
-            action.yml
+          path: action.tar.gz
+          archive: false
 
   test: # make sure the action works on a clean machine without building
     needs: [build]
@@ -40,8 +38,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
-          name: built
-          path: action
+          name: action.tar.gz
+      - run: mkdir -p action && tar xzf action.tar.gz -C action && rm action.tar.gz
 
       - name: Prepare project
         env:
