@@ -36,7 +36,7 @@ socat "UNIX-LISTEN:$SHARED_DIR/unity-license-client-notifications.sock,fork,reus
   echo "license client started!"
 ) &
 
-/licensingClient/Unity.Licensing.Client --namedPipe Unity-LicenseClient --debug
+/licensingClient/Unity.Licensing.Client --namedPipe Unity-LicenseClient
 
 rm -f touch "$SHARED_DIR/unity-license-client-ready"
 
