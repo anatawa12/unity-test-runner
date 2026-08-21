@@ -60,6 +60,7 @@ run_platform_test() {
     -debugCodeOptimization \
     -coverageOptions "$COVERAGE_OPTIONS" \
     $CUSTOM_UNITY_PARAMETERS \
+    -quit \
     | tee "$ARTIFACTS_PATH/$platform.log"
 
   TEST_EXIT_CODE="${PIPESTATUS[0]}"
