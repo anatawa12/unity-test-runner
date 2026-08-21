@@ -55,6 +55,7 @@ jobs:
             }
           }
           EOF
+          mkdir -p Assets/Editor
           echo "public class DummyTest { [NUnit.Framework.Test] public void DummyTestMethod() { } }" > Assets/Editor/Test.cs
 
       - uses: ./action
