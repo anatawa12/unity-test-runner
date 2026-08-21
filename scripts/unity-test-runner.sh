@@ -30,7 +30,7 @@ prepare_test_env() {
   echo "#    Project Directory    #"
   echo "###########################"
   echo ""
-  ls "$PROJECT_PATH"
+  ls -la "$PROJECT_PATH"
   echo ""
 }
 
