@@ -12,6 +12,8 @@ async function run(): Promise<void> {
 	await using tempDir = await fs.mkdtempDisposable(
 		path.join(os.tmpdir(), "unity-test-runner-"),
 	);
+	await fs.chmod(tempDir.path, 0o700);
+	await fs.mkdir(path.join(tempDir.path, "shared"));
 
 	try {
 		const inputs = loadInputs();
@@ -41,7 +43,7 @@ async function run(): Promise<void> {
 				"run",
 				"--detach",
 				`--volume=${actionsPath}/scripts:/scripts:z`,
-				`--volume=${tempDir}/shared:/shared:z`,
+				`--volume=${tempDir.path}/shared:/shared:z`,
 				`--env=SHARED_DIR=/shared`,
 				`--name=${unityCiContainer}`,
 				"--network=none",
@@ -54,7 +56,7 @@ async function run(): Promise<void> {
 				"run",
 				"--detach",
 				`--volume=${actionsPath}/scripts:/scripts:z`,
-				`--volume=${tempDir}/shared:/shared:z`,
+				`--volume=${tempDir.path}/shared:/shared:z`,
 				`--env=SHARED_DIR=/shared`,
 				`--env=${inputs.projectPath}=/project`,
 				`--env=PROJECT_PATH=/project`,
