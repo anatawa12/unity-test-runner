@@ -28,6 +28,7 @@ jobs:
   test: # make sure the action works on a clean machine without building
     needs: [build]
     strategy:
+      fail-fast: false
       matrix: 
         on:
           - ubuntu-latest
