@@ -49,8 +49,10 @@ jobs:
           echo "m_EditorVersion: $UNITY_VERSION" > ProjectSettings/ProjectVersion.txt
           cat <<EOF > Packages/manifest.json
           {
+            "dependencies": {
               "com.unity.test-framework": "1.1.33",
               "com.unity.testtools.codecoverage": "1.2.7"
+            }
           }
           EOF
           echo "public class DummyTest { [NUnit.Framework.Test] public void DummyTestMethod() { } }" > Assets/Test.cs
