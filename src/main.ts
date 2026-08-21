@@ -12,7 +12,7 @@ async function run(): Promise<void> {
 	await using tempDir = await fs.mkdtempDisposable(
 		path.join(os.tmpdir(), "unity-test-runner-"),
 	);
-	//await fs.chmod(tempDir.path, 0o700);
+	await fs.chmod(tempDir.path, 0o700);
 	await fs.mkdir(path.join(tempDir.path, "shared"));
 
 	try {
