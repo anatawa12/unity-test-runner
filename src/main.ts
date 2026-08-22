@@ -184,6 +184,18 @@ async function run(): Promise<void> {
 				]);
 				await exec("docker", [
 					"container",
+					"inspect",
+					"--format={{.State.Status}}",
+					licenceClientContainer,
+				]);
+				await exec("docker", [
+					"container",
+					"inspect",
+					"--format={{.State.Status}}",
+					unityCiContainer,
+				]);
+				await exec("docker", [
+					"container",
 					"rm",
 					"--force",
 					licenceClientContainer,
