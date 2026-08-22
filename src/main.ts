@@ -178,6 +178,12 @@ async function run(): Promise<void> {
 			await core.group("Removing created containers", async () => {
 				await exec("docker", [
 					"container",
+					"stop",
+					"--timeout=30",
+					licenceClientContainer,
+				]);
+				await exec("docker", [
+					"container",
 					"rm",
 					"--force",
 					licenceClientContainer,

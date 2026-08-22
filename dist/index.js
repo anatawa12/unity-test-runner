@@ -28499,6 +28499,12 @@ async function run() {
                 await _actions_core__WEBPACK_IMPORTED_MODULE_2__/* .group */ .Os("Removing created containers", async () => {
                     await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", [
                         "container",
+                        "stop",
+                        "--timeout=30",
+                        licenceClientContainer,
+                    ]);
+                    await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", [
+                        "container",
                         "rm",
                         "--force",
                         licenceClientContainer,
