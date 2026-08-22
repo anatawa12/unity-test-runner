@@ -1,12 +1,7 @@
 #!/bin/bash
 
 # unexport related variables
-export -n SHARED_DIR PROJECT_PATH ARTIFACTS_PATH CUSTOM_UNITY_PARAMETERS TEST_MODE COVERAGE_OPTIONS
-
-if [ -z "$SHARED_DIR" ]; then
-  echo '$SHARED_DIR is not set.' >&2
-  exit 1
-fi
+export -n PROJECT_PATH ARTIFACTS_PATH CUSTOM_UNITY_PARAMETERS TEST_MODE COVERAGE_OPTIONS
 
 test_failure=false
 
@@ -36,12 +31,12 @@ prepare_test_env() {
 
 prepare_license_client() {
   # starting license client proxy
-  socat "UNIX-LISTEN:/tmp/Unity-LicenseClient-$(whoami).sock,fork,reuseaddr" "UNIX-CONNECT:$SHARED_DIR/unity-license-client.sock" &
-  socat "UNIX-LISTEN:/tmp/Unity-LicenseClient-$(whoami)-notifications.sock,fork,reuseaddr" "UNIX-CONNECT:$SHARED_DIR/unity-license-client-notifications.sock" &
+  SOCK1="/tmp/Unity-LicenseClient-$(whoami).sock"
+  SOCK2="/tmp/Unity-LicenseClient-$(whoami)-notifications.sock"
 
   echo "Waiting for license client to start..."
   echo ""
-  while ! [ -e "$SHARED_DIR/unity-license-client-ready" ]; do
+  while ! [ -e "$SOCK1" ] || ! [ -e "$SOCK2" ]; do
     sleep 1
   done
   echo "License client has started!"
@@ -107,6 +102,8 @@ done
 
 kill %1 %2
 wait 2>/dev/null
+
+rm -rf /tmp/* /tmp/.*
 
 if $test_failure; then
   exit 1

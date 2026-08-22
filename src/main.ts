@@ -13,7 +13,12 @@ async function run(): Promise<void> {
 		path.join(os.tmpdir(), "unity-test-runner-"),
 	);
 	await fs.chmod(tempDir.path, 0o700);
-	await fs.mkdir(path.join(tempDir.path, "shared"));
+	const tmpLicenseClient = path.join(tempDir.path, "tmp-license-client");
+	const tmpUnityCi = path.join(tempDir.path, "tmp-unity-ci");
+	await fs.mkdir(tmpLicenseClient);
+	await fs.mkdir(tmpUnityCi);
+	await fs.chmod(tmpLicenseClient, 0o1777);
+	await fs.chmod(tmpUnityCi, 0o1777);
 
 	try {
 		const inputs = loadInputs();
@@ -36,15 +41,17 @@ async function run(): Promise<void> {
 			await exec("docker", ["image", "pull", unityCIImageTag]);
 			await exec("docker", ["image", "pull", licenseServerImageTag]);
 		});
+		// anatawa12@debian-x64-on-anatawa12-book:~/unity-test-runner/work$ mv tmp/Unity-LicenseClient.sock tmp1/Unity-LicenseClient-root.sock
+		// anatawa12@debian-x64-on-anatawa12-book:~/unity-test-runner/work$ mv tmp/Unity-LicenseClient-notifications.sock tmp1/Unity-LicenseClient-root-notifications.sock
+		// docker run --rm -it -v "$(pwd)/tmp1:/tmp" -v "$(pwd)/project:/project" -v "$(pwd)/artifacts:/artifacts" unityci/editor:ubuntu-6000.0.59f2-linux-il2cpp-3 unity-editor -batchmode -logFile - -projectPath /project -coverageResultsPath /artifacts/coverage -runTests -testPlatform editmode -testResults "/artifacts/editmode-results.xml" -enableCodeCoverage -debugCodeOptimization -coverageOptions 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;dontClear' -quit
 
 		await core.group("starting containers", async () => {
 			await exec("docker", [
 				"container",
 				"run",
 				"--detach",
+				`--volume=${tmpLicenseClient}:/tmp:z`,
 				`--volume=${actionsPath}/scripts:/scripts:z`,
-				`--volume=${tempDir.path}/shared:/shared:z`,
-				`--env=SHARED_DIR=/shared`,
 				`--name=${licenceClientContainer}`,
 				"--network=none",
 				licenseServerImageTag,
@@ -55,9 +62,8 @@ async function run(): Promise<void> {
 				"container",
 				"run",
 				"--detach",
+				`--volume=${tmpUnityCi}:/tmp:z`,
 				`--volume=${actionsPath}/scripts:/scripts:z`,
-				`--volume=${tempDir.path}/shared:/shared:z`,
-				`--env=SHARED_DIR=/shared`,
 				`--volume=${inputs.projectPath}:/project:z`,
 				`--env=PROJECT_PATH=/project`,
 				`--volume=${inputs.artifactsPath}:/artifacts:z`,
@@ -123,7 +129,45 @@ async function run(): Promise<void> {
 				},
 			);
 
+			const abort = new AbortController();
+			const copyAsReady = (async () => {
+				const exists = (path: string) =>
+					fs.stat(path).then(
+						() => true,
+						() => false,
+					);
+
+				let count = 0;
+				while (
+					!(await exists(`${tmpLicenseClient}/Unity-LicenseClient.sock`)) ||
+					!(await exists(
+						`${tmpLicenseClient}/Unity-LicenseClient-notifications.sock`,
+					))
+				) {
+					if (count++ % 5 === 0)
+						console.log(
+							`[runner ] We are waiting for Unity License Client to start\n`,
+						);
+					await new Promise((resolve) => setTimeout(resolve, 1000));
+					if (abort.signal.aborted) return;
+				}
+
+				console.log(`[runner ] Unity License Client has started!\n`);
+
+				const user = "root";
+				await fs.rename(
+					`${tmpLicenseClient}/Unity-LicenseClient.sock`,
+					`${tmpUnityCi}/Unity-LicenseClient-${user}.sock`,
+				);
+				await fs.rename(
+					`${tmpLicenseClient}/Unity-LicenseClient-notifications.sock`,
+					`${tmpUnityCi}/Unity-LicenseClient-${user}-notifications.sock`,
+				);
+			})();
+
 			await Promise.all([licenseClient, unityTester]);
+			abort.abort();
+			await copyAsReady;
 		});
 	} catch (error) {
 		if (error instanceof Error) core.setFailed(error);
