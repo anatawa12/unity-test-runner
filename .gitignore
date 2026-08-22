@@ -5,7 +5,3 @@
 # /dist # /dist will be used in releases branch
 /lib
 
-#### PUBLISH DELETE MARKER ####
-# lines below (this line included) are removed on the releases branch
-
-dist
