@@ -35,4 +35,5 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 COPY --from=license-client-installer --chown=0:0 /home/admin-user/.config/unityhub/external-modules/licensingClient /licensingClient
 
+STOPSIGNAL SIGINT
 ENTRYPOINT ["/usr/bin/tini", "--"]

@@ -27,5 +27,9 @@ echo "Cleaning up tmp dir"
 
 rm -rf /tmp/* /tmp/.*
 
+echo "Current processes"
+
+ps aux
+
 echo "Exiting container"
 exit $EXIT_CODE
