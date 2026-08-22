@@ -31,15 +31,31 @@ prepare_test_env() {
 
 prepare_license_client() {
   # starting license client proxy
+  REQUEST="/tmp/Request-Unity-LicenseClient"
   SOCK1="/tmp/Unity-LicenseClient-$(whoami).sock"
   SOCK2="/tmp/Unity-LicenseClient-$(whoami)-notifications.sock"
 
   echo "Waiting for license client to start..."
   echo ""
+  touch "$REQUEST";
   while ! [ -e "$SOCK1" ] || ! [ -e "$SOCK2" ]; do
     sleep 1
   done
   echo "License client has started!"
+}
+
+ensure_license_client_exits() {
+  # starting license client proxy
+  SOCK1="/tmp/Unity-LicenseClient-$(whoami).sock"
+  SOCK2="/tmp/Unity-LicenseClient-$(whoami)-notifications.sock"
+
+  echo "Waiting for license client to exit..."
+  sleep 3
+  if [ -e "$SOCK1" ] || [ -e "$SOCK2" ]; then
+    echo "License client has Not exited after a while. We assume it's still running"
+  else
+    echo "License client has exited!"
+  fi
 }
 
 run_platform_test() {
@@ -48,6 +64,8 @@ run_platform_test() {
   echo "###########################"
   echo "#   Testing in $platform  #"
   echo "###########################"
+  echo ""
+  prepare_license_client
   echo ""
 
   # shellcheck disable=SC2086 # CUSTOM_UNITY_PARAMETERS is env supplied
@@ -93,7 +111,6 @@ run_platform_test() {
 }
 
 prepare_test_env
-prepare_license_client
 
 for platform in ${TEST_MODE//;/ }; do
   # no standalone support

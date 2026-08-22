@@ -90,24 +90,6 @@ async function run(): Promise<void> {
 		});
 
 		await core.group("Running", async () => {
-			const licenseClient = parallelRun(
-				"license",
-				"docker",
-				[
-					"container",
-					"exec",
-					"--env=MACHINE_ID",
-					"--env=LICENSE_XML",
-					licenceClientContainer,
-					"/scripts/license-client-runner.sh",
-				],
-				{
-					env: {
-						MACHINE_ID: machineId,
-						LICENSE_XML: inputs.licenseXml,
-					},
-				},
-			);
 			const unityTester = parallelRun(
 				"unity  ",
 				"docker",
@@ -129,45 +111,76 @@ async function run(): Promise<void> {
 				},
 			);
 
-			const abort = new AbortController();
-			const copyAsReady = (async () => {
-				const exists = (path: string) =>
-					fs.stat(path).then(
-						() => true,
-						() => false,
-					);
+			const runnerLog = (log: string) => console.log(`[runner ] ${log}`);
 
-				let count = 0;
-				while (
-					!(await exists(`${tmpLicenseClient}/Unity-LicenseClient.sock`)) ||
-					!(await exists(
-						`${tmpLicenseClient}/Unity-LicenseClient-notifications.sock`,
-					))
-				) {
-					if (count++ % 5 === 0)
-						console.log(
-							`[runner ] We are waiting for Unity License Client to start\n`,
-						);
-					await new Promise((resolve) => setTimeout(resolve, 1000));
-					if (abort.signal.aborted) return;
+			const unityExited = new AbortController();
+			const abortPromise = new Promise<false>((resolve) => {
+				if (unityExited.signal.aborted) return resolve(false);
+				unityExited.signal.addEventListener("abort", () => resolve(false), {
+					once: true,
+				});
+			});
+
+			const user = "root";
+			const clientMainSocket = `${tmpLicenseClient}/Unity-LicenseClient.sock`;
+			const clientNotifSocket = `${tmpLicenseClient}/Unity-LicenseClient-notifications.sock`;
+			const requestFile = `${tmpUnityCi}/Request-Unity-LicenseClient`;
+			const mainSocket = `${tmpUnityCi}/Unity-LicenseClient-${user}.sock`;
+			const notifSocket = `${tmpUnityCi}/Unity-LicenseClient-${user}-notifications.sock`;
+
+			const runLicenseClient = async () => {
+				const licenseClient = parallelRun(
+					"license",
+					"docker",
+					[
+						"container",
+						"exec",
+						"--env=MACHINE_ID",
+						"--env=LICENSE_XML",
+						licenceClientContainer,
+						"/scripts/license-client-runner.sh",
+					],
+					{
+						env: {
+							MACHINE_ID: machineId,
+							LICENSE_XML: inputs.licenseXml,
+						},
+					},
+				);
+
+				if (
+					!(await Promise.race([
+						await Promise.all([
+							await pollFor(() => exists(clientMainSocket)),
+							await pollFor(() => exists(clientNotifSocket)),
+						]).then(() => true),
+						abortPromise,
+					]))
+				)
+					return;
+
+				runnerLog(`Unity License Client has started!`);
+
+				await fs.rename(clientMainSocket, mainSocket);
+				await fs.rename(clientNotifSocket, notifSocket);
+
+				await Promise.race([licenseClient, abortPromise]);
+
+				await fs.rm(mainSocket);
+				await fs.rm(notifSocket);
+			};
+
+			const licenseClientRunner = (async () => {
+				while (await pollFor(() => exists(requestFile), unityExited.signal)) {
+					await fs.rm(requestFile);
+					runnerLog(`Unity License Client has requested to start`);
+					await runLicenseClient();
 				}
-
-				console.log(`[runner ] Unity License Client has started!\n`);
-
-				const user = "root";
-				await fs.rename(
-					`${tmpLicenseClient}/Unity-LicenseClient.sock`,
-					`${tmpUnityCi}/Unity-LicenseClient-${user}.sock`,
-				);
-				await fs.rename(
-					`${tmpLicenseClient}/Unity-LicenseClient-notifications.sock`,
-					`${tmpUnityCi}/Unity-LicenseClient-${user}-notifications.sock`,
-				);
 			})();
 
-			await Promise.all([licenseClient, unityTester]);
-			abort.abort();
-			await copyAsReady;
+			await unityTester;
+			unityExited.abort();
+			await licenseClientRunner;
 		});
 	} catch (error) {
 		if (error instanceof Error) core.setFailed(error);
@@ -226,6 +239,24 @@ function loadMachineId(licenseXml: string): string {
 	}
 
 	return matches[1];
+}
+
+function exists(path: string) {
+	return fs.stat(path).then(
+		() => true,
+		() => false,
+	);
+}
+
+async function pollFor(
+	cond: () => boolean | Promise<boolean>,
+	signal?: AbortSignal,
+) {
+	while (!(await cond())) {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		if (signal?.aborted) return false;
+	}
+	return true;
 }
 
 await run();
