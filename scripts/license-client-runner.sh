@@ -23,7 +23,6 @@ printf "%s" "$LICENSE_XML" > ~/.config/unity3d/Unity/licenses/UnityEntitlementLi
 /licensingClient/Unity.Licensing.Client --namedPipe Unity-LicenseClient
 EXIT_CODE=$?
 
-kill %1 %2
 rm -rf /tmp/* /tmp/.*
 
 exit $EXIT_CODE

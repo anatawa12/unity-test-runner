@@ -100,9 +100,6 @@ for platform in ${TEST_MODE//;/ }; do
   run_platform_test "$platform"
 done
 
-kill %1 %2
-wait 2>/dev/null
-
 rm -rf /tmp/* /tmp/.*
 
 if $test_failure; then
