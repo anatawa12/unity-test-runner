@@ -183,6 +183,7 @@ async function run(): Promise<void> {
 					"container",
 					"stop",
 					"--timeout=30",
+					unityCiContainer,
 					licenceClientContainer,
 				]);
 				await exec("docker", [
@@ -201,8 +202,8 @@ async function run(): Promise<void> {
 					"container",
 					"rm",
 					"--force",
-					licenceClientContainer,
 					unityCiContainer,
+					licenceClientContainer,
 				]);
 			});
 		} catch (error) {
