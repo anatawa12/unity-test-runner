@@ -214,6 +214,8 @@ async function run(): Promise<void> {
 			else console.error(`Error removing created containers: ${error}`);
 		}
 	}
+
+	process.exit(process.exitCode);
 }
 
 async function loadUnityVersion(projectPath: string) {
