@@ -77,18 +77,6 @@ async function run(): Promise<void> {
 			]);
 		});
 
-		await core.group("Installing required tools", async () => {
-			await exec("docker", [
-				"container",
-				"exec",
-				"--user=0:0",
-				unityCiContainer,
-				"sh",
-				"-c",
-				"apt-get update && apt-get install socat -y --no-install-recommends",
-			]);
-		});
-
 		await core.group("Running", async () => {
 			const unityTester = parallelRun(
 				"unity  ",
