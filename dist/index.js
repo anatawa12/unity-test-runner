@@ -28504,6 +28504,7 @@ async function run() {
                         "container",
                         "stop",
                         "--timeout=30",
+                        unityCiContainer,
                         licenceClientContainer,
                     ]);
                     await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", [
@@ -28522,8 +28523,8 @@ async function run() {
                         "container",
                         "rm",
                         "--force",
-                        licenceClientContainer,
                         unityCiContainer,
+                        licenceClientContainer,
                     ]);
                 });
             }
