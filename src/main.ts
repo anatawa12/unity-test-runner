@@ -152,7 +152,9 @@ async function run(): Promise<void> {
 				await fs.rename(clientMainSocket, mainSocket);
 				await fs.rename(clientNotifSocket, notifSocket);
 
-				await Promise.race([licenseClient, abortPromise]);
+				if ((await Promise.race([licenseClient, abortPromise])) !== false) {
+					runnerLog(`Unity License Client has stopped!`);
+				}
 
 				await fs.rm(mainSocket);
 				await fs.rm(notifSocket);
@@ -167,6 +169,7 @@ async function run(): Promise<void> {
 			})();
 
 			await unityTester;
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 			unityExited.abort();
 			await licenseClientRunner;
 		});
