@@ -28538,6 +28538,7 @@ async function run() {
                     console.error(`Error removing created containers: ${error}`);
             }
         }
+        process.exit(process.exitCode);
     }
     catch (e_1) {
         env_1.error = e_1;
