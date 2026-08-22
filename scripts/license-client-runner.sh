@@ -29,7 +29,7 @@ rm -rf /tmp/* /tmp/.*
 
 echo "Current processes"
 
-ps aux
+for p in /proc/[0-9]*; do echo "${p##*/} $(cat $p/comm) $(cat $p/cmdline | tr -d '\0')"; done
 
 echo "Exiting container"
 exit $EXIT_CODE
