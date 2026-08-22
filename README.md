@@ -50,3 +50,10 @@ docker run --rm -it --pull=always --security-opt=seccomp=unconfined ghcr.io/anat
 # Or with apple container
 # container run --rm -it --pull=always --arch=amd64 ghcr.io/anatawa12/unity-test-runner/activator:1
 ```
+
+## Extra note on semantic versioning
+
+This action is generally intended to use on GitHub-hosted Runner and with default image.
+Therefore, environment requirements changes and `customImage` requirement changes might be done in patch versions.
+When you use `customImage` or this on self-hosted runner, please pin patch version, or keep your runner updated to
+reasonably newer version of runner and provide reasonably popular tools on environnt.
