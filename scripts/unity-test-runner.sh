@@ -107,7 +107,7 @@ run_platform_test() {
   echo "###########################"
   echo ""
 
-  cat "$FULL_ARTIFACTS_PATH/$platform-results.xml"
+  cat "$ARTIFACTS_PATH/$platform-results.xml"
 }
 
 prepare_test_env
