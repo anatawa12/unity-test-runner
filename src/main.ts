@@ -207,6 +207,7 @@ async function run(): Promise<void> {
 					unityCiContainer,
 					licenceClientContainer,
 				]);
+				console.log("Docker container stopped");
 			});
 		} catch (error) {
 			if (error instanceof Error) core.setFailed(error);
