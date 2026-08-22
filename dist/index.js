@@ -28528,6 +28528,7 @@ async function run() {
                         unityCiContainer,
                         licenceClientContainer,
                     ]);
+                    console.log("Docker container stopped");
                 });
             }
             catch (error) {
