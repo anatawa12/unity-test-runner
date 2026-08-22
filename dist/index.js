@@ -28505,6 +28505,18 @@ async function run() {
                     ]);
                     await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", [
                         "container",
+                        "inspect",
+                        "--format={{.State.Status}}",
+                        licenceClientContainer,
+                    ]);
+                    await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", [
+                        "container",
+                        "inspect",
+                        "--format={{.State.Status}}",
+                        unityCiContainer,
+                    ]);
+                    await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", [
+                        "container",
                         "rm",
                         "--force",
                         licenceClientContainer,
