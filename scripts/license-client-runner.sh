@@ -23,6 +23,9 @@ printf "%s" "$LICENSE_XML" > ~/.config/unity3d/Unity/licenses/UnityEntitlementLi
 /licensingClient/Unity.Licensing.Client --namedPipe Unity-LicenseClient
 EXIT_CODE=$?
 
+echo "Cleaning up tmp dir"
+
 rm -rf /tmp/* /tmp/.*
 
+echo "Exiting container"
 exit $EXIT_CODE
