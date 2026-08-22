@@ -156,8 +156,10 @@ async function run(): Promise<void> {
 					runnerLog(`Unity License Client has stopped!`);
 				}
 
-				await fs.rm(mainSocket);
-				await fs.rm(notifSocket);
+				await fs.rename(mainSocket, clientMainSocket);
+				await fs.rename(notifSocket, clientNotifSocket);
+				await fs.rm(clientMainSocket);
+				await fs.rm(clientNotifSocket);
 			};
 
 			const licenseClientRunner = (async () => {
