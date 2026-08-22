@@ -28472,7 +28472,9 @@ async function run() {
                     runnerLog(`Unity License Client has started!`);
                     await node_fs_promises__WEBPACK_IMPORTED_MODULE_0__.rename(clientMainSocket, mainSocket);
                     await node_fs_promises__WEBPACK_IMPORTED_MODULE_0__.rename(clientNotifSocket, notifSocket);
-                    await Promise.race([licenseClient, abortPromise]);
+                    if ((await Promise.race([licenseClient, abortPromise])) !== false) {
+                        runnerLog(`Unity License Client has stopped!`);
+                    }
                     await node_fs_promises__WEBPACK_IMPORTED_MODULE_0__.rm(mainSocket);
                     await node_fs_promises__WEBPACK_IMPORTED_MODULE_0__.rm(notifSocket);
                 };
@@ -28484,6 +28486,7 @@ async function run() {
                     }
                 })();
                 await unityTester;
+                await new Promise((resolve) => setTimeout(resolve, 1000));
                 unityExited.abort();
                 await licenseClientRunner;
             });
