@@ -28382,14 +28382,13 @@ async function run() {
                 await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", ["image", "pull", unityCIImageTag]);
                 await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", ["image", "pull", licenseServerImageTag]);
             });
-            // anatawa12@debian-x64-on-anatawa12-book:~/unity-test-runner/work$ mv tmp/Unity-LicenseClient.sock tmp1/Unity-LicenseClient-root.sock
-            // anatawa12@debian-x64-on-anatawa12-book:~/unity-test-runner/work$ mv tmp/Unity-LicenseClient-notifications.sock tmp1/Unity-LicenseClient-root-notifications.sock
-            // docker run --rm -it -v "$(pwd)/tmp1:/tmp" -v "$(pwd)/project:/project" -v "$(pwd)/artifacts:/artifacts" unityci/editor:ubuntu-6000.0.59f2-linux-il2cpp-3 unity-editor -batchmode -logFile - -projectPath /project -coverageResultsPath /artifacts/coverage -runTests -testPlatform editmode -testResults "/artifacts/editmode-results.xml" -enableCodeCoverage -debugCodeOptimization -coverageOptions 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;dontClear' -quit
+            const hostname = "unity-test-runner";
             await _actions_core__WEBPACK_IMPORTED_MODULE_2__/* .group */ .Os("starting containers", async () => {
                 await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", [
                     "container",
                     "run",
                     "--detach",
+                    `--hostname=${hostname}`,
                     `--volume=${tmpLicenseClient}:/tmp:z`,
                     `--volume=${actionsPath}/scripts:/scripts:z`,
                     `--name=${licenceClientContainer}`,
@@ -28402,6 +28401,7 @@ async function run() {
                     "container",
                     "run",
                     "--detach",
+                    `--hostname=${hostname}`,
                     `--volume=${tmpUnityCi}:/tmp:z`,
                     `--volume=${actionsPath}/scripts:/scripts:z`,
                     `--volume=${inputs.projectPath}:/project:z`,
