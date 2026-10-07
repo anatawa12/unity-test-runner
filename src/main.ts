@@ -3,6 +3,10 @@ import path from "node:path";
 import * as core from "@actions/core";
 import { exec } from "@actions/exec";
 import os from "os";
+import {
+	gameCiUbuntuEditorImageTag,
+	licenseServerImageTag,
+} from "./containers.js";
 import { loadInputs } from "./inputs.js";
 import { parallelRun } from "./parallel-exec-with-pretty-log.js";
 
@@ -30,10 +34,7 @@ async function run(): Promise<void> {
 		const machineId = loadMachineId(inputs.licenseXml);
 
 		const unityCIImageTag =
-			inputs.customImage ||
-			`unityci/editor:ubuntu-${unityVersion}-linux-il2cpp-3`;
-		const licenseServerImageTag =
-			"ghcr.io/anatawa12/unity-test-runner/license-client:1";
+			inputs.customImage || gameCiUbuntuEditorImageTag(unityVersion);
 
 		const actionsPath = path.dirname(path.dirname(import.meta.filename));
 
