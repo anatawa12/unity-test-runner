@@ -31,7 +31,7 @@ ENV ICU_VERSION ${ICU_VERSION}
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-    libicu${ICU_VERSION} libssl3 socat tini
+    libicu${ICU_VERSION} libssl3 socat tini ca-certificates
 
 COPY --from=license-client-installer --chown=0:0 /home/admin-user/.config/unityhub/external-modules/licensingClient /licensingClient
 
