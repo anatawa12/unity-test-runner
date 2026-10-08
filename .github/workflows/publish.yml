@@ -84,7 +84,7 @@ jobs:
           sed -n '/#### PUBLISH DELETE MARKER ####/q;p' -i .gitignore
 
           # add modified files
-          git add .gitignore dist
+          git add .gitignore dist license-updater/dist
 
           # commit
           NEW_RELEASE_TREE="$(git write-tree)"
