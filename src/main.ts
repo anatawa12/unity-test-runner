@@ -8,6 +8,7 @@ import {
 	licenseServerImageTag,
 } from "./containers.js";
 import { loadInputs } from "./inputs.js";
+import { loadMachineId } from "./license-xml.js";
 import { parallelRun } from "./parallel-exec-with-pretty-log.js";
 
 async function run(): Promise<void> {
@@ -240,19 +241,6 @@ async function loadUnityVersion(projectPath: string) {
 
 	if (!matches || matches.length < 2) {
 		throw new Error(`Failed to extract version from "${projectVersionTxt}".`);
-	}
-
-	return matches[1];
-}
-
-function loadMachineId(licenseXml: string): string {
-	const machineIdExtractor =
-		/<Identifier Id="([^"]+)" Type="Legacy.MachineBinding1" \/>/;
-
-	const matches = licenseXml.match(machineIdExtractor);
-
-	if (!matches || matches.length < 2) {
-		throw new Error(`Failed to extract MachineId from licenseXml.`);
 	}
 
 	return matches[1];
