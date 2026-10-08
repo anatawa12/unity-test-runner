@@ -17,7 +17,7 @@ inputs:
     description: "The list of secrets to be updated by this action. newline-separated list of secret target in form of 'organization/secret', 'owner/repo/secret', or 'owner/repo/environment/secret'."
   githubSecret:
     required: true
-    description: The secret to be used to update secrets. You cannot use `${{ github.token }}`, you must provide Fine-grained Personal Access Token.
+    description: The secret to be used to update secrets. You cannot use github.token, you must provide Fine-grained Personal Access Token.
   addDummyCommitToRepository:
     required: false
     description:
