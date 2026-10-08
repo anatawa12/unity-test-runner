@@ -57249,7 +57249,7 @@ async function main() {
         }
         if (inputs.addDummyCommitToRepository) {
             const client = (0,_actions_github__WEBPACK_IMPORTED_MODULE_5__/* .getOctokit */ .Q)(inputs.githubSecretForCommit);
-            _actions_core__WEBPACK_IMPORTED_MODULE_3__/* .info */ .pq("Creating and pushing dummy commit.");
+            _actions_core__WEBPACK_IMPORTED_MODULE_3__/* .info */ .pq(`Creating and pushing dummy commit to '${_actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.ref}' of '${_actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.owner}/${_actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.repo}'.`);
             const currentCommit = await client.rest.git.getCommit({
                 owner: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.owner,
                 repo: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.repo,
