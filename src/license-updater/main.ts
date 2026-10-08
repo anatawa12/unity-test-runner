@@ -165,7 +165,7 @@ async function main(): Promise<Outputs> {
 		await client.rest.git.updateRef({
 			owner: context.repo.owner,
 			repo: context.repo.repo,
-			ref: context.ref.replaceAll(/^refs\//, ""),
+			ref: context.ref.replace(/^refs\//, ""),
 			sha: commit.data.sha,
 		});
 	}
