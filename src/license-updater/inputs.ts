@@ -8,6 +8,7 @@ export interface Inputs {
 	githubSecret: string;
 
 	addDummyCommitToRepository: boolean;
+	githubSecretForCommit: string;
 	onlyIfExpiresSoon: boolean;
 }
 
@@ -47,6 +48,7 @@ export function loadInputs(): Inputs {
 	const addDummyCommitToRepository = core.getBooleanInput(
 		"addDummyCommitToRepository",
 	);
+	const githubSecretForCommit = core.getInput("githubSecretForCommit");
 	const onlyIfExpiresSoon = core.getBooleanInput("onlyIfExpiresSoon");
 
 	return {
@@ -56,6 +58,7 @@ export function loadInputs(): Inputs {
 		secrets,
 		githubSecret,
 		addDummyCommitToRepository,
+		githubSecretForCommit,
 		onlyIfExpiresSoon,
 	};
 }

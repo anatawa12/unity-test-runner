@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import * as core from "@actions/core";
 import { exec } from "@actions/exec";
-import { getOctokit } from "@actions/github";
+import { context, getOctokit } from "@actions/github";
 import sodium from "libsodium-wrappers";
 import { containerHostname, licenseServerImageTag } from "../containers.js";
 import { loadMachineId, loadUpdateDates } from "../license-xml.js";
@@ -143,6 +143,24 @@ async function main(): Promise<Outputs> {
 				break;
 			}
 		}
+	}
+
+	if (inputs.addDummyCommitToRepository) {
+		const client = getOctokit(inputs.githubSecretForCommit);
+		core.info("Creating and pushing dummy commit.");
+		const commit = await client.rest.git.createCommit({
+			owner: context.repo.owner,
+			repo: context.repo.repo,
+			message: `Dummy commit by license-updater`,
+			parents: [context.sha],
+			tree: "",
+		});
+		await client.rest.git.updateRef({
+			owner: context.repo.owner,
+			repo: context.repo.repo,
+			ref: context.ref,
+			sha: commit.data.sha,
+		});
 	}
 
 	return {

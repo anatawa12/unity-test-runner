@@ -23,6 +23,9 @@ inputs:
     description:
       If true, we add dummy commit to the current repository with no code changes.
       This is useful when you create distinct repository for updating secrets and the repository is not updating.
+  githubSecretForCommit:
+    default: ${{ github.token }}
+    description: The secret to be used to create dummy commit.
   onlyIfExpiresSoon:
     required: false
     description:
