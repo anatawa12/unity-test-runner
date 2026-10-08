@@ -1,0 +1,38 @@
+name: 'Unity License Updater'
+description: 'A github actions to update unity license and save to secrets'
+author: 'anatawa12'
+
+inputs:
+  licenseXml:
+    required: true
+    description: 'The known contents of the UnityEntitlementLicense.xml.'
+  unityEmail:
+    required: true
+    description: 'The email address for unity account'
+  unityPassword:
+    required: true
+    description: 'The password for unity account'
+  secrets:
+    required: true
+    description: "The list of secrets to be updated by this action. newline-separated list of secret target in form of 'organization/secret', 'owner/repo/secret', or 'owner/repo/environment/secret'."
+  githubSecret:
+    required: true
+    description: The secret to be used to update secrets. You cannot use `${{ github.token }}`, you must provide Fine-grained Personal Access Token.
+  addDummyCommitToRepository:
+    required: false
+    description:
+      If true, we add dummy commit to the current repository with no code changes.
+      This is useful when you create distinct repository for updating secrets and the repository is not updating.
+  onlyIfExpiresSoon:
+    required: false
+    description:
+      If true, this action will update the secret only if the secret expires soon.
+      Currently this action will update the secret if expires in 30 hours.
+
+outputs:
+  updated:
+    description: 'outputs whether the action have updated the xml'
+
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
