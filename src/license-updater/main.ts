@@ -148,12 +148,17 @@ async function main(): Promise<Outputs> {
 	if (inputs.addDummyCommitToRepository) {
 		const client = getOctokit(inputs.githubSecretForCommit);
 		core.info("Creating and pushing dummy commit.");
+		const currentCommit = await client.rest.git.getCommit({
+			owner: context.repo.owner,
+			repo: context.repo.repo,
+			commit_sha: context.sha,
+		});
 		const commit = await client.rest.git.createCommit({
 			owner: context.repo.owner,
 			repo: context.repo.repo,
 			message: `Dummy commit by license-updater`,
-			parents: [context.sha],
-			tree: "",
+			parents: [currentCommit.data.sha],
+			tree: currentCommit.data.tree.sha,
 		});
 		await client.rest.git.updateRef({
 			owner: context.repo.owner,

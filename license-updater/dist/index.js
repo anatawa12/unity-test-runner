@@ -57250,12 +57250,17 @@ async function main() {
         if (inputs.addDummyCommitToRepository) {
             const client = (0,_actions_github__WEBPACK_IMPORTED_MODULE_5__/* .getOctokit */ .Q)(inputs.githubSecretForCommit);
             _actions_core__WEBPACK_IMPORTED_MODULE_3__/* .info */ .pq("Creating and pushing dummy commit.");
+            const currentCommit = await client.rest.git.getCommit({
+                owner: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.owner,
+                repo: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.repo,
+                commit_sha: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.sha,
+            });
             const commit = await client.rest.git.createCommit({
                 owner: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.owner,
                 repo: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.repo,
                 message: `Dummy commit by license-updater`,
-                parents: [_actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.sha],
-                tree: "",
+                parents: [currentCommit.data.sha],
+                tree: currentCommit.data.tree.sha,
             });
             await client.rest.git.updateRef({
                 owner: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.owner,
