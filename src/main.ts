@@ -3,8 +3,16 @@ import path from "node:path";
 import * as core from "@actions/core";
 import { exec } from "@actions/exec";
 import os from "os";
+import {
+	containerHostname,
+	gameCiUbuntuEditorImageTag,
+	licenseServerImageTag,
+} from "./containers.js";
 import { loadInputs } from "./inputs.js";
+import { loadMachineId } from "./license-xml.js";
 import { parallelRun } from "./parallel-exec-with-pretty-log.js";
+
+const actionsPath = path.dirname(path.dirname(import.meta.filename));
 
 async function run(): Promise<void> {
 	const unityCiContainer = "unity-test-runner.unity-ci";
@@ -30,26 +38,19 @@ async function run(): Promise<void> {
 		const machineId = loadMachineId(inputs.licenseXml);
 
 		const unityCIImageTag =
-			inputs.customImage ||
-			`unityci/editor:ubuntu-${unityVersion}-linux-il2cpp-3`;
-		const licenseServerImageTag =
-			"ghcr.io/anatawa12/unity-test-runner/license-client:1";
-
-		const actionsPath = path.dirname(path.dirname(import.meta.filename));
+			inputs.customImage || gameCiUbuntuEditorImageTag(unityVersion);
 
 		await core.group("Pulling docker images", async () => {
 			await exec("docker", ["image", "pull", unityCIImageTag]);
 			await exec("docker", ["image", "pull", licenseServerImageTag]);
 		});
 
-		const hostname = "unity-test-runner";
-
 		await core.group("starting containers", async () => {
 			await exec("docker", [
 				"container",
 				"run",
 				"--detach",
-				`--hostname=${hostname}`,
+				`--hostname=${containerHostname}`,
 				`--volume=${tmpLicenseClient}:/tmp:z`,
 				`--volume=${actionsPath}/scripts:/scripts:z`,
 				`--name=${licenceClientContainer}`,
@@ -62,7 +63,7 @@ async function run(): Promise<void> {
 				"container",
 				"run",
 				"--detach",
-				`--hostname=${hostname}`,
+				`--hostname=${containerHostname}`,
 				`--volume=${tmpUnityCi}:/tmp:z`,
 				`--volume=${actionsPath}/scripts:/scripts:z`,
 				`--volume=${inputs.projectPath}:/project:z`,
@@ -239,19 +240,6 @@ async function loadUnityVersion(projectPath: string) {
 
 	if (!matches || matches.length < 2) {
 		throw new Error(`Failed to extract version from "${projectVersionTxt}".`);
-	}
-
-	return matches[1];
-}
-
-function loadMachineId(licenseXml: string): string {
-	const machineIdExtractor =
-		/<Identifier Id="([^"]+)" Type="Legacy.MachineBinding1" \/>/;
-
-	const matches = licenseXml.match(machineIdExtractor);
-
-	if (!matches || matches.length < 2) {
-		throw new Error(`Failed to extract MachineId from licenseXml.`);
 	}
 
 	return matches[1];

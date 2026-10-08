@@ -48,8 +48,13 @@ Use following command to initiate activation process, and
 # --security-opt=seccomp=unconfined is necessary for keyring access
 docker run --rm -it --pull=always --security-opt=seccomp=unconfined ghcr.io/anatawa12/unity-test-runner/activator:1
 # Or with apple container
-# container run --rm -it --pull=always --arch=amd64 ghcr.io/anatawa12/unity-test-runner/activator:1
+# container run --rm -it --arch=amd64 ghcr.io/anatawa12/unity-test-runner/activator:1
 ```
+
+<!--
+# --pull is not implemented
+# container run --rm -it --pull=always --arch=amd64 ghcr.io/anatawa12/unity-test-runner/activator:1
+-->
 
 ## Extra note on semantic versioning
 

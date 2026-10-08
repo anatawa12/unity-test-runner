@@ -28231,6 +28231,21 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util");
 
 /***/ }),
 
+/***/ 2147:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   RS: () => (/* binding */ containerHostname),
+/* harmony export */   Sq: () => (/* binding */ licenseServerImageTag),
+/* harmony export */   u3: () => (/* binding */ gameCiUbuntuEditorImageTag)
+/* harmony export */ });
+const gameCiUbuntuEditorImageTag = (unityVersion) => `unityci/editor:ubuntu-${unityVersion}-linux-il2cpp-3`;
+const licenseServerImageTag = "ghcr.io/anatawa12/unity-test-runner/license-client:1";
+const containerHostname = "unity-test-runner";
+
+
+/***/ }),
+
 /***/ 4245:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
@@ -28285,6 +28300,36 @@ function loadInputs() {
 
 /***/ }),
 
+/***/ 204:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   t: () => (/* binding */ loadMachineId)
+/* harmony export */ });
+/* unused harmony export loadUpdateDates */
+function loadMachineId(licenseXml) {
+    const machineIdExtractor = /<Identifier Id="([^"]+)" Type="Legacy.MachineBinding1" \/>/;
+    const matches = licenseXml.match(machineIdExtractor);
+    if (!matches || matches.length < 2) {
+        throw new Error(`Failed to extract MachineId from licenseXml.`);
+    }
+    return matches[1];
+}
+function loadUpdateDates(licenseXml) {
+    const updateIdExtractor = /<UpdateDate>([^<]*)<\/UpdateDate>/g;
+    const results = [];
+    for (const match of licenseXml.matchAll(updateIdExtractor)) {
+        const date = Date.parse(match[1]);
+        if (Number.isNaN(date))
+            throw new Error("Failed to load UpdateDate");
+        results.push(new Date(date));
+    }
+    return results;
+}
+
+
+/***/ }),
+
 /***/ 342:
 /***/ ((__webpack_module__, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
@@ -28294,7 +28339,9 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 /* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(7448);
 /* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2876);
 /* harmony import */ var os__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(857);
+/* harmony import */ var _containers_js__WEBPACK_IMPORTED_MODULE_8__ = __nccwpck_require__(2147);
 /* harmony import */ var _inputs_js__WEBPACK_IMPORTED_MODULE_5__ = __nccwpck_require__(4245);
+/* harmony import */ var _license_xml_js__WEBPACK_IMPORTED_MODULE_7__ = __nccwpck_require__(204);
 /* harmony import */ var _parallel_exec_with_pretty_log_js__WEBPACK_IMPORTED_MODULE_6__ = __nccwpck_require__(6078);
 var __addDisposableResource = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
@@ -28355,6 +28402,9 @@ var __disposeResources = (undefined && undefined.__disposeResources) || (functio
 
 
 
+
+
+const actionsPath = node_path__WEBPACK_IMPORTED_MODULE_1__.dirname(node_path__WEBPACK_IMPORTED_MODULE_1__.dirname(import.meta.filename));
 async function run() {
     const env_1 = { stack: [], error: void 0, hasError: false };
     try {
@@ -28373,27 +28423,23 @@ async function run() {
             const unityVersion = inputs.unityVersion === "auto"
                 ? await loadUnityVersion(inputs.projectPath)
                 : inputs.unityVersion;
-            const machineId = loadMachineId(inputs.licenseXml);
-            const unityCIImageTag = inputs.customImage ||
-                `unityci/editor:ubuntu-${unityVersion}-linux-il2cpp-3`;
-            const licenseServerImageTag = "ghcr.io/anatawa12/unity-test-runner/license-client:1";
-            const actionsPath = node_path__WEBPACK_IMPORTED_MODULE_1__.dirname(node_path__WEBPACK_IMPORTED_MODULE_1__.dirname(import.meta.filename));
+            const machineId = (0,_license_xml_js__WEBPACK_IMPORTED_MODULE_7__/* .loadMachineId */ .t)(inputs.licenseXml);
+            const unityCIImageTag = inputs.customImage || (0,_containers_js__WEBPACK_IMPORTED_MODULE_8__/* .gameCiUbuntuEditorImageTag */ .u3)(unityVersion);
             await _actions_core__WEBPACK_IMPORTED_MODULE_2__/* .group */ .Os("Pulling docker images", async () => {
                 await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", ["image", "pull", unityCIImageTag]);
-                await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", ["image", "pull", licenseServerImageTag]);
+                await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", ["image", "pull", _containers_js__WEBPACK_IMPORTED_MODULE_8__/* .licenseServerImageTag */ .Sq]);
             });
-            const hostname = "unity-test-runner";
             await _actions_core__WEBPACK_IMPORTED_MODULE_2__/* .group */ .Os("starting containers", async () => {
                 await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_3__/* .exec */ .m)("docker", [
                     "container",
                     "run",
                     "--detach",
-                    `--hostname=${hostname}`,
+                    `--hostname=${_containers_js__WEBPACK_IMPORTED_MODULE_8__/* .containerHostname */ .RS}`,
                     `--volume=${tmpLicenseClient}:/tmp:z`,
                     `--volume=${actionsPath}/scripts:/scripts:z`,
                     `--name=${licenceClientContainer}`,
                     "--network=none",
-                    licenseServerImageTag,
+                    _containers_js__WEBPACK_IMPORTED_MODULE_8__/* .licenseServerImageTag */ .Sq,
                     "sleep",
                     "infinity",
                 ]);
@@ -28401,7 +28447,7 @@ async function run() {
                     "container",
                     "run",
                     "--detach",
-                    `--hostname=${hostname}`,
+                    `--hostname=${_containers_js__WEBPACK_IMPORTED_MODULE_8__/* .containerHostname */ .RS}`,
                     `--volume=${tmpUnityCi}:/tmp:z`,
                     `--volume=${actionsPath}/scripts:/scripts:z`,
                     `--volume=${inputs.projectPath}:/project:z`,
@@ -28563,14 +28609,6 @@ async function loadUnityVersion(projectPath) {
     const matches = projectVersionTxt.match(versionRegex);
     if (!matches || matches.length < 2) {
         throw new Error(`Failed to extract version from "${projectVersionTxt}".`);
-    }
-    return matches[1];
-}
-function loadMachineId(licenseXml) {
-    const machineIdExtractor = /<Identifier Id="([^"]+)" Type="Legacy.MachineBinding1" \/>/;
-    const matches = licenseXml.match(machineIdExtractor);
-    if (!matches || matches.length < 2) {
-        throw new Error(`Failed to extract MachineId from licenseXml.`);
     }
     return matches[1];
 }
