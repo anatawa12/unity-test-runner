@@ -57265,7 +57265,7 @@ async function main() {
             await client.rest.git.updateRef({
                 owner: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.owner,
                 repo: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.repo.repo,
-                ref: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.ref,
+                ref: _actions_github__WEBPACK_IMPORTED_MODULE_5__/* .context */ ._.ref.replaceAll(/^refs\//, ""),
                 sha: commit.data.sha,
             });
         }
