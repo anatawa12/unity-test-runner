@@ -147,7 +147,9 @@ async function main(): Promise<Outputs> {
 
 	if (inputs.addDummyCommitToRepository) {
 		const client = getOctokit(inputs.githubSecretForCommit);
-		core.info("Creating and pushing dummy commit.");
+		core.info(
+			`Creating and pushing dummy commit to '${context.ref}' of '${context.repo.owner}/${context.repo.repo}'.`,
+		);
 		const currentCommit = await client.rest.git.getCommit({
 			owner: context.repo.owner,
 			repo: context.repo.repo,
