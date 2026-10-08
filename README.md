@@ -7,6 +7,8 @@ A GitHub Actions Workflow that is for running unity tests.
 - No need to store password to secrets!
   - GameCI recently requires storing passwords.
   - This workflow only needs `UnityEntitlementLicense.xml` which is what similar to `ulf` files, which does not contain such credentials
+  - However, it expires in 1 month so we need to recreate it periodically, about once a month.
+    - There is action to do this, but requires unity email / password.
 - Unity log are output to GitHub Actions in real-time
   - You can investigate workflow freeze without needing cancelling workflow and downloading artifacts
 - No additional credentials exposed to Unity
@@ -27,7 +29,7 @@ jobs:
       # checkout your repository
       - uses: actions/checkout@v7
 
-      - uses: anatawa12/unity-test-runner@v1
+      - uses: anatawa12/unity-test-runner@v0.1
         with:
           licenseXml: ${{ secrets.UNITY_LICENSE_XML }}
 
@@ -55,6 +57,13 @@ docker run --rm -it --pull=always --security-opt=seccomp=unconfined ghcr.io/anat
 # --pull is not implemented
 # container run --rm -it --pull=always --arch=amd64 ghcr.io/anatawa12/unity-test-runner/activator:1
 -->
+
+### Prepare Automatic Licensee renewing
+
+When you want, you can set up [license-updater](./license-updater) somewhere, not necessarily be in same repository.
+This requires email and password to be stored in GitHub Actions secrets, but allows you to run tests without periodic manual updates.
+
+See its README for detailed information on setup
 
 ## Extra note on semantic versioning
 
